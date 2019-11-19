@@ -1,1 +1,1 @@
-# MSX-BASIC-Tokenizer
+# MSX BASIC — Промежуточный код
