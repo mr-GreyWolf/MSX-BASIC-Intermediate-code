@@ -74,6 +74,8 @@ def hex_text(hex):
 	'b0':'OPEN',
 	'b1':'FIELD',
 	'b2':'GET',
+	'b3':'PUT',
+        'b4':'CLOSE',
 	'b5':'LOAD',
 	'b6':'MERGE',
 	'b7':'FILES',
