@@ -222,10 +222,10 @@ prefix_0b=0	# 0b = Octal
 prefix_0c=0	# 0c = Hex
 prefix_1c=0	# 1c = Integer (256 32767) (%)
 prefix_0e=0	# 0e = номер строки
-prefix_0f=0	# 0f = Integer 1-255
-prefix_22=0	# кавычка
-prefix_3a8fe6=0	# коментарии (') (3a 8f e6)
-prefix_rem=0	# коментарии REM (8f)
+prefix_0f=0	# 0f = Integer 10-255
+prefix_22=0	# кавычка (")
+prefix_3a8fe6=0	# комментарий (') (3a 8f e6)
+prefix_rem=0	# комментарий REM (8f)
 
 line_end=binascii.unhexlify('0d'+'0a')	# 00 = 0d 0a (перевод строки)
 file_end=binascii.unhexlify('1a')		# 00 00 = 1a (конец файла)
