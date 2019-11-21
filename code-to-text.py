@@ -5,11 +5,11 @@ import sys
 
 if __name__=='__main__':
     if len(sys.argv)==3:
-	file_i=sys.argv[1]     # исходный файл
-	file_o=sys.argv[2]     # конечный файл
+	file_i=sys.argv[1]	# исходный файл
+	file_o=sys.argv[2]	# конечный файл
     else:
 	print ('Не заданы файлы!')
-	print ('Пример: '+sys.argv[0]+' file.bas file.txt')
+	print ('Пример: '+sys.argv[0]+' file.bas file_a.txt')
 	sys.exit(1)
 
 def hex_text(hex):
@@ -57,22 +57,20 @@ def hex_text_ff (hex):
     return text
 
 data_out=''
-i=0
 file_in=open(file_i, 'rb')
 data_in=file_in.read(1)
 prefix_00=0	# Новая строка
 prefix_ff=0	# FF hex_text_ff
-prefix_0b=0	# 0b = Octal
-prefix_0c=0	# 0c = Hex
-prefix_1c=0	# 1c = Integer (256 32767) (%)
-prefix_0e=0	# 0e = номер строки
-prefix_0f=0	# 0f = Integer 10-255
+prefix_0b=0	# 0B = Octal
+prefix_0c=0	# 0C = Hex
+prefix_1c=0	# 1C = Integer (256-32767)
+prefix_0e=0	# 0E = номер строки
+prefix_0f=0	# 0F = Integer 10-255
 prefix_22=0	# кавычка (")
-prefix_3a8fe6=0	# комментарий (') (3a 8f e6)
-prefix_rem=0	# комментарий REM (8f)
-
-line_end=binascii.unhexlify('0d'+'0a')	# 00 = 0d 0a (перевод строки)
-file_end=binascii.unhexlify('1a')		# 00 00 = 1a (конец файла)
+prefix_3a8fe6=0	# комментарий (') (3A 8F E6)
+prefix_rem=0	# комментарий REM (8F)
+line_end=binascii.unhexlify('0d'+'0a')	# перевод строки 00 (0D 0D)
+file_end=binascii.unhexlify('1a')	# конец файла 00 00 (1A)
 
 while data_in:
     processed=0
@@ -235,10 +233,10 @@ while data_in:
 	hex_0c_1=code_hex
 	prefix_0c=0
 	if int(hex_0c_1,base=16)<=15:
-	# Убираем лидирующий ноль из старшего разряда
+	    # Убираем лидирующий ноль из старшего разряда
 	    hex_0c_1=str(hex_0c_1.replace('0',''))
 	if int(hex_0c_2,base=16)<=15:
-	# Убираем лидирующий ноль из младшего разряда
+	    # Убираем лидирующий ноль из младшего разряда
 	    hex_0c_2=str(hex_0c_2.replace('0',''))
 	data_out=data_out+'&H'+str(hex_0c_1+hex_0c_2).upper()
 	processed=1
@@ -280,7 +278,6 @@ while data_in:
 	processed=1
 
     data_in=file_in.read(1)
-    i=i+1
 
 file_out = open(file_o, 'w')
 file_out.write(data_out)
