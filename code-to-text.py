@@ -238,8 +238,12 @@ while data_in:
     code_hex_text=hex_text(code_hex)
     code_hex_text_ff=hex_text_ff(code_hex)
 
-    # Разделитель операторов (:) (3a)
-    if prefix_3a8fe6==1 and code_hex<>'8f':
+    # Разделитель операторов ELSE (3A A1)
+    if prefix_3a8fe6==1 and code_hex=='a1':
+        prefix_3a8fe6=0
+
+    # Разделитель операторов (:) (3A)
+    elif prefix_3a8fe6==1 and code_hex<>'8f':
         data_out=data_out+':'
         prefix_3a8fe6=0
 
