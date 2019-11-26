@@ -64,6 +64,8 @@ prefix_ff=0	# FF hex_text_ff
 prefix_0b=0	# 0B = Octal
 prefix_0c=0	# 0C = Hex
 prefix_1c=0	# 1C = Integer (256-32767)
+prefix_1d=0	# 1D = Single
+prefix_1d_2=0	# 1D = Single (второй полубайт)
 prefix_0e=0	# 0E = номер строки
 prefix_0f=0	# 0F = Integer 10-255
 prefix_22=0	# кавычка (")
@@ -256,6 +258,37 @@ while data_in:
 	prefix_1c=0
 	data_out=data_out + str(int(int(int_1c_1 + int_1c_2,base=16)))
 	processed=1
+
+    #  Single (1d) : префикс
+    elif code_hex=='1d'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 \
+			and prefix_0b==0 and prefix_0c==0 and prefix_1c==0:
+	prefix_1d=1
+    # Single (1d) (1)
+    elif prefix_1d==1:
+	data_1d=''
+	prefix_1d=2
+	prefix_1d_2=((int(code_hex))-40)
+	processed=1
+    #  Single (1d) (2)
+    elif prefix_1d==2:
+	data_1d=data_1d+code_hex
+	prefix_1d=3
+	processed=1
+    #  Single (1d) (3)
+    elif prefix_1d==3:
+	data_1d=data_1d+code_hex
+	prefix_1d=4
+	processed=1
+    #  Single (1d) (4)
+    elif prefix_1d==4:
+	data_1d=data_1d+code_hex
+	if prefix_1d_2==6:
+	    data_out=data_out+data_1d+'!'
+	else:
+	    data_out=data_out+(data_1d[0:prefix_1d_2]+'.'+data_1d[prefix_1d_2:])
+	processed=1
+	prefix_1d=0
+	prefix_1d_2=0
 
     # Таблица 2 (ff) префикс
     elif code_hex=='ff' and prefix_ff==0 and prefix_0e==0 and prefix_0f==0:
