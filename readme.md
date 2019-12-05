@@ -2,6 +2,8 @@
 
 Описание формата [здесь](https://sysadminmosaic.ru/msx/basic_intermediate_code/).
 
+Для написания скриптов использовался Python 2.7
+
 <a name="codetotextt"></a>
 ### code-to-text.py
 Читает файл в бинарном формате и сохраняет его содержимое в текстово формате
