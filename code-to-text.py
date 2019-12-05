@@ -60,23 +60,23 @@ def hex_text_ff (hex):
 data_out=''
 file_in=open(file_i, 'rb')
 data_in=file_in.read(1)
-prefix_00=0		# Новая строка
-prefix_ff=0		# FF hex_text_ff
-prefix_0b=0		# 0B = Octal
-prefix_0c=0		# 0C = Hex
-prefix_1c=0		# 1C = Integer (256-32767)
-prefix_1d=0		# 1D = Single
+prefix_00=0	# Новая строка
+prefix_ff=0	# FF hex_text_ff
+prefix_0b=0	# 0B = Octal
+prefix_0c=0	# 0C = Hex
+prefix_1c=0	# 1C = Integer (256-32767)
+prefix_1d=0	# 1D = Single
 prefix_1d_2=0	# 1D = Single (второй полубайт)
-prefix_1f=0		# 1F = Double
+prefix_1f=0	# 1F = Double
 prefix_1f_2=0	# 1F = Double (второй байт полностью)
 prefix_1f_22=0	# 1F = Double (второй полубайт)
-prefix_0e=0		# 0E = номер строки
-prefix_0f=0		# 0F = Integer 10-255
-prefix_22=0		# кавычка (")
+prefix_0e=0	# 0E = номер строки
+prefix_0f=0	# 0F = Integer 10-255
+prefix_22=0	# кавычка (")
 prefix_3a8fe6=0	# комментарий (') (3A 8F E6)
 prefix_rem=0	# комментарий REM (8F)
 line_end=binascii.unhexlify('0d'+'0a')	# перевод строки 00 (0D 0D)
-file_end=binascii.unhexlify('1a')		# конец файла 00 00 (1A)
+file_end=binascii.unhexlify('1a')	# конец файла 00 00 (1A)
 
 while data_in:
 	processed=0
@@ -105,7 +105,7 @@ while data_in:
 		processed=1
 
     # 00 = Конец строки
-	elif code_hex=='00'	and prefix_00==0 and prefix_0f==0 and prefix_0e==0 and prefix_0b==0 and prefix_0c==0 and prefix_1d==0 and prefix_1f==0:
+	elif code_hex=='00' and prefix_00==0 and prefix_0f==0 and prefix_0e==0 and prefix_0b==0 and prefix_0c==0 and prefix_1d==0 and prefix_1f==0:
 		data_out=data_out+line_end
 		prefix_00=1
 		prefix_22=0
@@ -174,7 +174,7 @@ while data_in:
 			data_out=data_out + code_hex_text
 
 	# Номер строки (0e)
-	elif code_hex=='0e'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
+	elif code_hex=='0e' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_0e=1
 		processed=1
 	# Номер строки (0e): младший байт (1) номера строкм
@@ -201,7 +201,7 @@ while data_in:
 		processed=1
 
 	#  Octal (0b): префикс
-	elif code_hex=='0b'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0c==0:
+	elif code_hex=='0b' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0c==0:
 		prefix_0b=1
 	# Octal (0b): младший байт (1)
 	elif prefix_0b==1:
@@ -216,7 +216,7 @@ while data_in:
 		processed=1
 
 	# Hex (0c): префикс
-	elif code_hex=='0c'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_1c==0:
+	elif code_hex=='0c' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_1c==0:
 		prefix_0c=1
 	# Hex (0c): младший байт (1)
 	elif prefix_0c==1:
@@ -237,7 +237,7 @@ while data_in:
 		processed=1
 
 	# Integer (1c) 256 32767 (%): префикс
-	elif code_hex=='1c'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
+	elif code_hex=='1c' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_1c=1
 	# Integer (1c) 256 32767 (%): младший байт (1)
 	elif prefix_1c==1:
@@ -252,7 +252,7 @@ while data_in:
 		processed=1
 
 	# Single (1d) : префикс
-	elif code_hex=='1d'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0 and prefix_1c==0:
+	elif code_hex=='1d' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0 and prefix_1c==0:
 		prefix_1d=1
 	# Single (1d) (1)
 	elif prefix_1d==1:
@@ -282,7 +282,7 @@ while data_in:
 		prefix_1d_2=0
 
 	# Doudle (1F) : префикс
-	elif code_hex=='1f'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0 and prefix_1c==0 and prefix_1d==0:
+	elif code_hex=='1f' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0 and prefix_1c==0 and prefix_1d==0:
 		prefix_1f=1
 	# Doudle (1F) (1)
 	elif prefix_1f==1:
