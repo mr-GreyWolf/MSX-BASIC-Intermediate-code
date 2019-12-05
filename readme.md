@@ -11,7 +11,7 @@
 2. Выходной файл текстовом формате
 
 Пример запуска:
-`./code-to-text.py file.bas file_a.txt`
+`./code-to-text.py file.bas file_a.bas`
 
 <a name="codebas"></a>
 ### code.bas
