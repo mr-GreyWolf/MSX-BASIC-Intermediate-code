@@ -89,7 +89,7 @@ while data_in:
         prefix_3a8fe6=0
 
     # Разделитель операторов (:) (3A)
-    elif prefix_3a8fe6==1 and code_hex<>'8f':
+    elif prefix_3a8fe6==1 and code_hex!='8f':
         data_out=data_out+':'
         prefix_3a8fe6=0
 
@@ -363,13 +363,13 @@ while data_in:
 	prefix_ff=1
 	processed=1
     # Таблица 2 (ff) текст
-    elif prefix_ff==1 and prefix_0e==0 and code_hex_text_ff<>'' and prefix_0f==0:
+    elif prefix_ff==1 and prefix_0e==0 and code_hex_text_ff!='' and prefix_0f==0:
 	data_out=data_out+code_hex_text_ff
 	prefix_ff=0
 	processed=1
 
     # Таблица 1
-    elif prefix_ff==0 and prefix_00==0 and prefix_0e==0 and code_hex_text<>'' and prefix_0f==0:
+    elif prefix_ff==0 and prefix_00==0 and prefix_0e==0 and code_hex_text!='' and prefix_0f==0:
 	data_out=data_out+code_hex_text
 	processed=1
 
