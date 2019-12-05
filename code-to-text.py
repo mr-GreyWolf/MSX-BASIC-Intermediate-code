@@ -9,7 +9,7 @@ if __name__=='__main__':
 	file_o=sys.argv[2]	# конечный файл
     else:
 	print ('Не заданы файлы!')
-	print ('Пример: '+sys.argv[0]+' file.bas file_a.txt')
+	print ('Пример: '+sys.argv[0]+' file.bas file_a.bas')
 	sys.exit(1)
 
 def hex_text(hex):
