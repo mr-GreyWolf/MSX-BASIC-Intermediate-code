@@ -30,8 +30,7 @@ def hex_text(hex):
 	'ea':'DSKI$','eb':'OFF','ec':'INKEY$','ed':'POINT',
 	'ee':'>','ef':'=','f0':'<','f1':'+','f2':'-','f3':'*','f4':'/','f5':'^',
 	'f6':'AND','f7':'OR','f8':'XOR','f9':'EQU','fa':'IMP',	'fb':'MOD',
-	'fc':'\\', # Обратный слеш
-#	'fd':'Перевод строки'
+	'fc':'\\' # Обратный слеш
     }
     if hex in hex_to_text:
 	text=(hex_to_text[hex])
@@ -66,6 +65,9 @@ prefix_0c=0	# 0C = Hex
 prefix_1c=0	# 1C = Integer (256-32767)
 prefix_1d=0	# 1D = Single
 prefix_1d_2=0	# 1D = Single (второй полубайт)
+prefix_1f=0	# 1F = Double
+prefix_1f_2=0	# 1F = Double (второй байт полностью)
+prefix_1f_22=0	# 1F = Double (второй полубайт)
 prefix_0e=0	# 0E = номер строки
 prefix_0f=0	# 0F = Integer 10-255
 prefix_22=0	# кавычка (")
@@ -96,13 +98,15 @@ while data_in:
 	processed = 1
 	prefix_00=1
     # 00 = Конец файла
-    elif code_hex=='00' and prefix_00==2 and prefix_0f==0 and prefix_0e==0:
+    elif code_hex=='00' and prefix_00==2 and prefix_0f==0 and prefix_0e==0 \
+			and prefix_1d==0 and prefix_1f==0:
 	data_out=data_out+file_end
 	processed=1
 
     # 00 = Конец строки
     elif code_hex=='00'	and prefix_00==0 and prefix_0f==0 and prefix_0e==0 \
-			and prefix_0b==0 and prefix_0c==0:
+			and prefix_0b==0 and prefix_0c==0 \
+			and prefix_1d==0 and prefix_1f==0:
 	data_out=data_out+line_end
 	prefix_00=1
 	prefix_22=0
@@ -289,6 +293,70 @@ while data_in:
 	processed=1
 	prefix_1d=0
 	prefix_1d_2=0
+
+
+    #  Doudle (1F) : префикс
+    elif code_hex=='1f'	and prefix_00==0 and prefix_ff==0 and prefix_0f==0 \
+			and prefix_0b==0 and prefix_0c==0 and prefix_1c==0 \
+			and prefix_1d==0:
+	prefix_1f=1
+    # Doudle (1F) (1)
+    elif prefix_1f==1:
+	data_1f=''
+	prefix_1f=2
+	prefix_1f_22=int(code_hex[1:2],base=16)
+	prefix_1f_2=int(code_hex,base=16)
+	processed=1
+    #  Doudle (1F) (2)
+    elif prefix_1f==2:
+	data_1f=data_1f+code_hex
+	prefix_1f=3
+	processed=1
+    #  Doudle (1F) (3)
+    elif prefix_1f==3:
+	data_1f=data_1f+code_hex
+	prefix_1f=4
+	processed=1
+    #  Doudle (1F) (4)
+    elif prefix_1f==4:
+	data_1f=data_1f+code_hex
+	prefix_1f=5
+	processed=1
+    #  Doudle (1F) (5)
+    elif prefix_1f==5:
+	data_1f=data_1f+code_hex
+	prefix_1f=6
+	processed=1
+    #  Doudle (1F) (6)
+    elif prefix_1f==6:
+	data_1f=data_1f+code_hex
+	prefix_1f=7
+	processed=1
+    #  Doudle (1F) (7)
+    elif prefix_1f==7:
+	data_1f=data_1f+code_hex
+	prefix_1f=8
+	processed=1
+    #  Doudle (1F) (8)
+    elif prefix_1f==8:
+	data_1f=data_1f+code_hex
+	if prefix_1f_22==14:
+	    data_out=data_out+data_1f+'#'
+	else:
+	    # Если больше или равно 4F
+	    if prefix_1f_2 >= 79:
+		# Ставим десятичную точку полсле первого разряда
+		data_1f=data_1f[0:1]+'.'+data_1f[1:]
+		# Добавляем степень
+		data_out=data_out+(str(data_1f))+'E+'+str(prefix_1f_2-65)
+	    else:
+		# Удаляем незначащие нули
+		data_1f=((data_1f[0:prefix_1f_22]+'.'+data_1f[prefix_1f_22:])).rstrip('0').rstrip('.')
+		data_out=data_out+(str(data_1f))+'#'
+	processed=1
+	prefix_1f=0
+	prefix_1f_22=0
+	prefix_1f_2=0
 
     # Таблица 2 (ff) префикс
     elif code_hex=='ff' and prefix_ff==0 and prefix_0e==0 and prefix_0f==0:
