@@ -60,10 +60,10 @@ def hex_text_ff (hex):
 data_out=''
 file_in=open(file_i, 'rb')
 data_in=file_in.read(1)
-prefix_00=0	    # 00 = Новая строка
-prefix_ff=0	    # FF = Таблица 2
-prefix_0b=0	    # 0B = Octal
-prefix_0c=0	    # 0C = Hex
+prefix_00=0     # 00 = Новая строка
+prefix_ff=0     # FF = Таблица 2
+prefix_0b=0     # 0B = Octal
+prefix_0c=0     # 0C = Hex
 prefix_1c=0     # 1C = Integer 256-32767
 prefix_1d=0     # 1D = Single
 prefix_1d_2=0   # 1D = Single (второй полубайт)
