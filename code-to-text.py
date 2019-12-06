@@ -40,7 +40,7 @@ def hex_text(hex):
 	return text
 
 def hex_text_ff (hex):
-	# Префикс ff
+	# Таблица 2 (FF)
 	hex_to_text_ff={
 		'81':'LEFT$','82':'RIGHT$','83':'MID$','84':'SGN','85':'INT','86':'ABS','87':'SQR','88':'RND','89':'SIN',
 		'8a':'LOG','8b':'EXP','8c':'COS','8d':'TAN','8e':'ATN','8f':'FRE',
@@ -60,23 +60,23 @@ def hex_text_ff (hex):
 data_out=''
 file_in=open(file_i, 'rb')
 data_in=file_in.read(1)
-prefix_00=0	# Новая строка
-prefix_ff=0	# FF hex_text_ff
-prefix_0b=0	# 0B = Octal
-prefix_0c=0	# 0C = Hex
-prefix_1c=0	# 1C = Integer (256-32767)
-prefix_1d=0	# 1D = Single
-prefix_1d_2=0	# 1D = Single (второй полубайт)
-prefix_1f=0	# 1F = Double
-prefix_1f_2=0	# 1F = Double (второй байт полностью)
-prefix_1f_22=0	# 1F = Double (второй полубайт)
-prefix_0e=0	# 0E = номер строки
-prefix_0f=0	# 0F = Integer 10-255
-prefix_22=0	# кавычка (")
-prefix_3a8fe6=0	# комментарий (') (3A 8F E6)
-prefix_rem=0	# комментарий REM (8F)
-line_end=binascii.unhexlify('0d'+'0a')	# перевод строки 00 (0D 0D)
-file_end=binascii.unhexlify('1a')	# конец файла 00 00 (1A)
+prefix_00=0	    # 00 = Новая строка
+prefix_ff=0	    # FF = Таблица 2
+prefix_0b=0	    # 0B = Octal
+prefix_0c=0	    # 0C = Hex
+prefix_1c=0     # 1C = Integer 256-32767
+prefix_1d=0     # 1D = Single
+prefix_1d_2=0   # 1D = Single (второй полубайт)
+prefix_1f=0     # 1F = Double
+prefix_1f_2=0   # 1F = Double (второй байт полностью)
+prefix_1f_22=0  # 1F = Double (второй полубайт)
+prefix_0e=0     # 0E = номер строки
+prefix_0f=0     # 0F = Integer 10-255
+prefix_22=0     # 22 = Кавычка (")
+prefix_3a8fe6=0 # 3A 8F E6 = Комментарий (') 
+prefix_rem=0    # 8F = Комментарий (REM)
+line_end=binascii.unhexlify('0d'+'0a') # перевод строки 00 (0D 0D)
+file_end=binascii.unhexlify('1a')      # конец файла 00 00 (1A)
 
 while data_in:
 	processed=0
@@ -99,12 +99,12 @@ while data_in:
 	if code_hex=='ff' and data_out=='':
 		processed = 1
 		prefix_00=1
-	# 00 = Конец файла
+	# Конец файла (00)
 	elif code_hex=='00' and prefix_00==2 and prefix_0f==0 and prefix_0e==0 and prefix_1d==0 and prefix_1f==0:
 		data_out=data_out+file_end
 		processed=1
 
-    # 00 = Конец строки
+	# Конец строки (00)
 	elif code_hex=='00' and prefix_00==0 and prefix_0f==0 and prefix_0e==0 and prefix_0b==0 and prefix_0c==0 and prefix_1d==0 and prefix_1f==0:
 		data_out=data_out+line_end
 		prefix_00=1
@@ -152,7 +152,6 @@ while data_in:
 	# Коментарий (3a8fe6) (e6)
 	elif prefix_3a8fe6==3:
 		data_out=data_out+binascii.unhexlify(code_hex)
-
 	elif prefix_3a8fe6==2 and code_hex=='e6' and prefix_00==0 and prefix_22==0 and prefix_rem==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_3a8fe6=3
 		data_out = data_out+'\''
@@ -200,7 +199,7 @@ while data_in:
 		prefix_0f=1
 		processed=1
 
-	#  Octal (0b): префикс
+	# Octal (0b): префикс
 	elif code_hex=='0b' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0c==0:
 		prefix_0b=1
 	# Octal (0b): младший байт (1)
@@ -236,15 +235,15 @@ while data_in:
 		data_out=data_out+'&H'+str(hex_0c_1+hex_0c_2).upper()
 		processed=1
 
-	# Integer (1c) 256 32767 (%): префикс
+	# Integer (1c) 256-32767 (%): префикс
 	elif code_hex=='1c' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_1c=1
-	# Integer (1c) 256 32767 (%): младший байт (1)
+	# Integer (1c) 256-32767 (%): младший байт (1)
 	elif prefix_1c==1:
 		int_1c_2=code_hex
 		prefix_1c=2
 		processed=1
-	# Integer (1c) 256 32767 (%): старший байт (2)
+	# Integer (1c) 256-32767 (%): старший байт (2)
 	elif prefix_1c==2:
 		int_1c_1=code_hex
 		prefix_1c=0
