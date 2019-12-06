@@ -16,6 +16,17 @@
 
 `./code-to-text.py file.bas file_a.bas`
 
+## Тесты
+<a name="testfiles"></a>
+
+Заруск скрита с тестовым файлом:
+
+`./code-to-text.py code.bas code.txt`
+
+Сравнение файлов:
+
+`diff code.txt code_a.bas`
+
 <a name="codebas"></a>
 ### code.bas
 Тестовый файл в бинарном формате, создан командой: `save "code.bas"`
