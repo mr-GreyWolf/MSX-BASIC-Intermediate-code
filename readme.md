@@ -2,7 +2,7 @@
 
 Описание формата [здесь](https://sysadminmosaic.ru/msx/basic_intermediate_code/).
 
-Для написания скриптов использовался Python 2.7
+Скрипт работает в Python 2 и 3
 
 <a name="codetotextt"></a>
 ### code-to-text.py

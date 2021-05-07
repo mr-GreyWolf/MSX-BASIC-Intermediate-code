@@ -1,7 +1,6 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 #coding=utf8
-import binascii
-import sys
+import binascii, sys
 
 if __name__=='__main__':
 	if len(sys.argv)==3:
@@ -57,7 +56,7 @@ def hex_text_ff (hex):
 		text=''
 	return text
 
-data_out=''
+data_out=b''
 file_in=open(file_i, 'rb')
 data_in=file_in.read(1)
 prefix_00=0     # 00 = Новая строка
@@ -81,7 +80,7 @@ file_end=binascii.unhexlify('1a')      # конец файла 00 00 (1A)
 while data_in:
 	processed=0
 	code_dec=ord(data_in)
-	code_hex=binascii.b2a_hex(data_in)
+	code_hex=(binascii.b2a_hex(data_in)).decode('ascii')
 	code_bin=binascii.unhexlify(code_hex)
 	code_hex_text=hex_text(code_hex)
 	code_hex_text_ff=hex_text_ff(code_hex)
@@ -89,21 +88,18 @@ while data_in:
 	# Разделитель операторов ELSE (3A A1)
 	if prefix_3a8fe6==1 and code_hex=='a1':
 		prefix_3a8fe6=0
-
 	# Разделитель операторов (:) (3A)
 	elif prefix_3a8fe6==1 and code_hex!='8f':
-		data_out=data_out+':'
+		data_out=data_out+':'.encode()
 		prefix_3a8fe6=0
-
 	# Первая строка (как 00)
-	if code_hex=='ff' and data_out=='':
+	if code_hex=='ff' and data_out==b'':
 		processed = 1
 		prefix_00=1
 	# Конец файла (00)
 	elif code_hex=='00' and prefix_00==2 and prefix_0f==0 and prefix_0e==0 and prefix_1d==0 and prefix_1f==0:
 		data_out=data_out+file_end
 		processed=1
-
 	# Конец строки (00)
 	elif code_hex=='00' and prefix_00==0 and prefix_0f==0 and prefix_0e==0 and prefix_0b==0 and prefix_0c==0 and prefix_1d==0 and prefix_1f==0:
 		data_out=data_out+line_end
@@ -132,9 +128,8 @@ while data_in:
 		string_number_1=code_hex
 		string_number=str(int(string_number_1+string_number_2,base=16))+' '
 		prefix_00=0
-		data_out=data_out+string_number
+		data_out=data_out+(string_number).encode()
 		processed=1
-
 	# Кавычки (22): префикс
 	elif code_hex=='22':
 		if prefix_22==0:
@@ -148,20 +143,18 @@ while data_in:
 	elif prefix_22==1:
 		data_out=data_out+binascii.unhexlify(code_hex)
 		processed=1
-
 	# Коментарий (3a8fe6) (e6)
 	elif prefix_3a8fe6==3:
 		data_out=data_out+binascii.unhexlify(code_hex)
 	elif prefix_3a8fe6==2 and code_hex=='e6' and prefix_00==0 and prefix_22==0 and prefix_rem==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_3a8fe6=3
-		data_out = data_out+'\''
+		data_out = data_out+'\''.encode()
 	# Коментарий (3a8fe6) (8f)
 	elif prefix_3a8fe6==1 and code_hex=='8f' and prefix_00==0 and prefix_22==0 and prefix_rem==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_3a8fe6=2
 	# Коментарий (3a8fe6): префикс
 	elif code_hex=='3a' and prefix_00==0 and prefix_22==0 and prefix_rem==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_3a8fe6=1
-
 	# REM (8f):
 	elif prefix_rem==1:
 		data_out=data_out + binascii.unhexlify(code_hex)
@@ -170,8 +163,7 @@ while data_in:
 	elif code_hex=='8f':
 		if prefix_rem==0:
 			prefix_rem=1
-			data_out=data_out + code_hex_text
-
+			data_out=data_out + code_hex_text.encode()
 	# Номер строки (0e)
 	elif code_hex=='0e' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_0e=1
@@ -186,19 +178,17 @@ while data_in:
 		string_number_0e_1=code_hex
 		string_number_0e=str(int(string_number_0e_1+string_number_0e_2,base=16))
 		prefix_0e=0
-		data_out=data_out+string_number_0e
+		data_out=data_out+string_number_0e.encode()
 		processed=1
-
 	# Integer 1-255 (0f)
 	elif prefix_0f==1:
-		data_out=data_out+str(int(code_hex,base=16))
+		data_out=data_out+str(int(code_hex,base=16)).encode()
 		prefix_0f=0
 		processed=1
 	# Integer 1-255 (0f): префикс
 	elif code_hex=='0f':
 		prefix_0f=1
 		processed=1
-
 	# Octal (0b): префикс
 	elif code_hex=='0b' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0c==0:
 		prefix_0b=1
@@ -211,9 +201,13 @@ while data_in:
 	elif prefix_0b==2:
 		octal_0b_1=code_hex
 		prefix_0b=0
-		data_out=data_out+'&O'+str(int(oct(int(octal_0b_1+octal_0b_2,base=16))))
+		if sys.version_info[0] < 3:
+			# Python 2
+			data_out=data_out+'&O'+str(int(oct(int(octal_0b_1+octal_0b_2,base=16))))
+		else:
+			# Python 3
+			data_out=data_out+'&O'.encode()+(str(oct(int(octal_0b_1+octal_0b_2,base=16)))).replace('0o','').encode()
 		processed=1
-
 	# Hex (0c): префикс
 	elif code_hex=='0c' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_1c==0:
 		prefix_0c=1
@@ -232,9 +226,8 @@ while data_in:
 		if int(hex_0c_2,base=16)<=15:
 			# Убираем лидирующий ноль из младшего разряда
 			hex_0c_2=str(hex_0c_2.replace('0',''))
-		data_out=data_out+'&H'+str(hex_0c_1+hex_0c_2).upper()
+		data_out=data_out+'&H'.encode()+ ( str(hex_0c_1+hex_0c_2).upper() ).replace('0o','').encode()
 		processed=1
-
 	# Integer (1c) 256-32767 (%): префикс
 	elif code_hex=='1c' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0:
 		prefix_1c=1
@@ -247,9 +240,8 @@ while data_in:
 	elif prefix_1c==2:
 		int_1c_1=code_hex
 		prefix_1c=0
-		data_out=data_out + str(int(int(int_1c_1 + int_1c_2,base=16)))
+		data_out=data_out + str(int(int(int_1c_1 + int_1c_2,base=16))).encode()
 		processed=1
-
 	# Single (1d) : префикс
 	elif code_hex=='1d' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0 and prefix_1c==0:
 		prefix_1d=1
@@ -273,13 +265,12 @@ while data_in:
 	elif prefix_1d==4:
 		data_1d=data_1d+code_hex
 		if prefix_1d_2==6:
-			data_out=data_out+data_1d+'!'
+			data_out=data_out+(data_1d+'!').encode()
 		else:
-			data_out=data_out+(data_1d[0:prefix_1d_2]+'.'+data_1d[prefix_1d_2:])
+			data_out=data_out+((data_1d[0:prefix_1d_2]+'.'+data_1d[prefix_1d_2:])).encode()
 		processed=1
 		prefix_1d=0
 		prefix_1d_2=0
-
 	# Doudle (1F) : префикс
 	elif code_hex=='1f' and prefix_00==0 and prefix_ff==0 and prefix_0f==0 and prefix_0b==0 and prefix_0c==0 and prefix_1c==0 and prefix_1d==0:
 		prefix_1f=1
@@ -324,38 +315,35 @@ while data_in:
 	elif prefix_1f==8:
 		data_1f=data_1f+code_hex
 		if prefix_1f_22==14:
-			data_out=data_out+data_1f+'#'
+			data_out=data_out+(data_1f+'#').encode()
 		else:
 			# Если больше или равно 4F
 			if prefix_1f_2 >= 79:
 				# Ставим десятичную точку полсле первого разряда
 				data_1f=data_1f[0:1]+'.'+data_1f[1:]
 				# Добавляем степень
-				data_out=data_out+(str(data_1f))+'E+'+str(prefix_1f_2-65)
+				data_out=data_out+((str(data_1f))+'E+').encode()+str(prefix_1f_2-65).encode()
 			else:
 				# Удаляем незначащие нули
 				data_1f=((data_1f[0:prefix_1f_22]+'.'+data_1f[prefix_1f_22:])).rstrip('0').rstrip('.')
-				data_out=data_out+(str(data_1f))+'#'
+				data_out=data_out+((str(data_1f))+'#').encode()
 		processed=1
 		prefix_1f=0
 		prefix_1f_22=0
 		prefix_1f_2=0
-
 	# Таблица 2 (ff) префикс
 	elif code_hex=='ff' and prefix_ff==0 and prefix_0e==0 and prefix_0f==0:
 		prefix_ff=1
 		processed=1
 	# Таблица 2 (ff) текст
 	elif prefix_ff==1 and prefix_0e==0 and code_hex_text_ff!='' and prefix_0f==0:
-		data_out=data_out+code_hex_text_ff
+		data_out=data_out+code_hex_text_ff.encode()
 		prefix_ff=0
 		processed=1
-
 	# Таблица 1
 	elif prefix_ff==0 and prefix_00==0 and prefix_0e==0 and code_hex_text!='' and prefix_0f==0:
-		data_out=data_out+code_hex_text
+		data_out=data_out+code_hex_text.encode()
 		processed=1
-
 	# Обычный текст
 	elif code_hex_text=="" and code_hex_text_ff=="" and processed==0:
 		data_out=data_out+binascii.unhexlify(code_hex)
@@ -363,7 +351,7 @@ while data_in:
 
 	data_in=file_in.read(1)
 
-file_out = open(file_o, 'w')
+file_out = open(file_o, 'wb')
 file_out.write(data_out)
 
 file_out.close()
